@@ -1,0 +1,44 @@
+---
+title: Test Wallet
+---
+
+import { LinkOut } from '@interledger/docs-design-system'
+
+Before working with our code snippets, we recommend creating a wallet account on the <LinkOut href='https://wallet.interledger-test.dev/'>test wallet</LinkOut> that's part of the Interledger testnet.
+
+The test wallet lets you create developer keys and wallet accounts, funded with play money, for making Interledger transactions via the Open Payments APIs.
+
+## Create an account on the test wallet
+
+1. Go to <LinkOut href="https://wallet.interledger-test.dev">wallet.interledger-test.dev</LinkOut>.
+2. Click **Create an account** at the bottom right of the screen.
+3. Enter your e-mail address, a password, confirm the password and click the arrowhead.
+4. Go to your inbox and look for an e-mail sent by `tech@interledger.org` with the subject "[Test.Wallet] Verify your account" and click **Confirm my email address.** <br />
+5. Click **Login to your account** at the email verification screen.
+6. Log in with your credentials.
+7. Complete the KYC steps, and liveness check. The only real information you need to share is your email address and phone number. All other information can be fictitious. If a photo is required, you can upload anything as long as it's not blank.
+
+You're now ready to create a test wallet and add money to it!
+
+## Create a wallet account
+
+1. You can create a wallet account by clicking **New Account.**
+2. Enter a name for the account, choose an asset code (the currency) from the drop-down menu and click **Create account.**
+3. Click **View Account.**
+4. Click **Add payment pointer.**
+5. Enter a Payment Pointer name and a Public name and then click **Create.**
+6. Click **Deposit**.
+7. Enter an amount, then click **Deposit**.
+
+Congratulations, you now have a funded test wallet!
+
+## Obtain a public-private key pair and key ID
+
+Before you can initialize an authenticated Open Payments client, you must obtain a public-private key pair and a key ID.
+
+1. Sign in to <LinkOut href='https://wallet.interledger-test.dev/'>wallet.interledger-test.dev</LinkOut>, if not already signed in.
+2. Select **Settings > Developer Keys**.
+3. Expand the drop-down menu for your wallet account.
+4. Click **Generate public & private key**. Your key ID and public key appear on the site. A private key file named `private.key` automatically downloads to your machine.
+
+You can now use your keys and payment pointer to initialize an authenticated Open Payments client.

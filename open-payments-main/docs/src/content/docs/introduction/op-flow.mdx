@@ -1,0 +1,207 @@
+---
+title: Open Payments flow
+---
+
+import {
+  MermaidWrapper,
+  Mermaid,
+  LinkOut
+} from '@interledger/docs-design-system'
+import Interactive from '/src/partials/diagram-interactive-grant.mdx'
+
+This page describes each step in the Open Payments flow at a high level. The sequence diagrams are for illustrative purposes and might not be an exact representation of a given flow.
+
+### Assumptions
+
+- The client's end-user is the payer.
+- The client already has the payer's Open Payments-enabled account details and is able to send payments on behalf of the payer.
+
+## Get account details
+
+A client retrieves public details about a payee's Open Payments-enabled account by issuing a <LinkOut href='/apis/wallet-address-server/operations/get-wallet-address/'>GET request</LinkOut> to the payee's wallet address. Details include the asset code and scale of the underlying account, as well as the authorization and resource server URLs which the client needs in order to set up a payment to the payee.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+    participant C as Client
+    participant WA as Wallet address
+
+    C->>WA: GET wallet address url (e.g. https://wallet.example.com/alice)
+    WA->>C: 200 wallet address found, return public account details
+
+`}
+/>
+
+</MermaidWrapper>
+
+## Incoming payment
+
+The client first <LinkOut href='/apis/auth-server/operations/post-request'>requests/receives a grant</LinkOut> from the payee's authorization server to create an `incoming-payment` resource. The client then sends a request to the payee-side resource server to <LinkOut href='/apis/resource-server/operations/create-incoming-payment/'>create the resource</LinkOut>. When created, the resource server returns unique payment details the client will use to address one or more payments to the payee.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+    participant C as Client instance
+    participant AS as Payee-side<br/>authorization server
+    participant RS as Payee-side<br/>resource server
+
+    C->>AS: Grant request (POST) with type=incoming-payment
+    AS->>C: 200 OK, returns access token
+    C->>RS: Create incoming payment resource (POST)
+    RS->>C: 201 Incoming payment resource created
+
+`}
+/>
+
+</MermaidWrapper>
+
+## Quote
+
+The client <LinkOut href='/apis/auth-server/operations/post-request'>requests/receives a grant</LinkOut> from the end-user's authorization server to create a `quote` resource. The client then sends a request to the end-user's resource server to <LinkOut href='/apis/resource-server/operations/create-quote'>create the resource</LinkOut>. When created, the resource server returns, among other things, a quote `id` and the amount it will cost to make the payment.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+    participant C as Client instance
+    participant AS as Payer-side<br/>authorization server
+    participant RS as Payer-side<br/>resource server
+
+    C->>AS: Grant request (POST) with type=quote
+    AS->>C: 200 OK, returns access token
+    C->>RS: Create quote resource (POST)
+    RS->>C: 201 Quote resource created
+
+`}
+/>
+
+</MermaidWrapper>
+
+## Outgoing payment
+
+Before an outgoing payment resource can be created on the end-user's account, Open Payments requires the client to send an <LinkOut href='/apis/auth-server/operations/post-request'>interactive grant request</LinkOut> to the authorization server.
+
+An interactive grant requires explicit consent be collected from the end-user before an access token is issued. While the client must facilitate the interaction, the end-user's authorization server and identity provider (IdP) are responsible for the interface and collecting consent.
+
+After consent is obtained, the client requests permission to <LinkOut href='/apis/auth-server/operations/post-continue'>continue the grant request</LinkOut> in order to obtain an access token.
+
+<Interactive />
+
+Once an access token is acquired, the client can request the creation of the <LinkOut href='/apis/resource-server/operations/create-outgoing-payment'>outgoing-payment resource</LinkOut>. The setup of the payment is complete and the Open Payments flow ends after the resource is created.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+
+    participant C as Client instance
+    participant RS as Payer-side<br/>resource server
+
+    C->>RS: Create outgoing payment resource (POST)
+    RS->>C: 201 Outgoing payment resource created
+
+`}
+/>
+
+</MermaidWrapper>
+
+## Get transaction history
+
+To provide an end-user with their transaction history, the client can retrieve a list of the user's <LinkOut href='/apis/resource-server/operations/list-incoming-payments/'>incoming (received) payments</LinkOut> and <LinkOut href='/apis/resource-server/operations/list-outgoing-payments/'>outgoing (sent) payments</LinkOut>.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+
+    participant C as Client
+    participant RS as Resource server
+
+    C->>RS: Get list of incoming/outgoing payments <br/>with wallet-address={url of wallet address}
+    RS->>C: 200 OK
+
+`}
+/>
+
+</MermaidWrapper>
+
+Similarly, the client can provide the end-user with details about a specific <LinkOut href='/apis/resource-server/operations/get-incoming-payment'>incoming</LinkOut> or <LinkOut href='/apis/resource-server/operations/get-outgoing-payment'>outgoing</LinkOut> payment.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+
+    participant C as Client
+    participant RS as Resource server
+
+    C->>RS: Get incoming/outgoing payment with <br/>id={url identifying incoming/outgoing payment}
+    RS->>C: 200 Payment found
+
+`}
+/>
+
+</MermaidWrapper>
+
+## Bringing it all together
+
+This diagram brings the aforementioned concepts together, except for getting transaction history, to present a full transaction sequence without delving too deeply into the contents of each request and response. A link to view a larger version of the diagram is provided at the bottom of the page.
+
+As shown below, both the sender and the recipient's ASEs must operate their own authorization and resource servers. Grant requests for incoming payment and quote resources are typically non-interactive. A grant request for an outgoing payment resource requires explicit consent from the sender (e.g., the client's end user), which is obtained through the sender's [identity provider](/introduction/grants#identity-providers).
+
+More information about grant interaction flows can be found in the [Grant negotiation and authorization](/introduction/grants) page.
+
+<MermaidWrapper client:load>
+
+<Mermaid
+  graph={`sequenceDiagram
+    autonumber
+    box rgb(225,245,254) Sender's<br/>account servicing entity
+    participant SIDP as Identity provider
+    participant SRS as Resource server
+    participant SAS as Auth server
+    end
+    participant SC as Client
+    box rgb(232,245,233) Recipient's<br/>account servicing entity
+    participant RW as Wallet address URL
+    participant RAS as Auth server
+    participant RRS as Resource server
+    end
+    SC->>+RW: Sends GET request
+    RW->>-SC: Responds with auth & resource server URLs
+    SC->>+RAS: Sends a non-interactive grant request<br/>(type=incoming-payment)
+    RAS->>-SC: Responds with access token & grant
+    SC->>+RRS: Sends request to create an incoming payment resource
+    RRS->>RAS: Requests validation of access token
+    RAS->>RRS: Access token is validated
+    RRS->>-SC: Incoming payment resource is created
+    SC->>+SAS: Sends non-interactive grant request<br/>(type=quote)
+    SAS->>-SC: Responds with access token and grant
+    SC->>+SRS: Sends request to create a quote resource
+    SRS->>-SC: Quote resource is created
+    SC->>+SAS: Sends interactive grant request<br/>(type=outgoing-payment)
+    SAS->>-SC: Responds with interact redirect uri and continue uri
+    SC->>+SAS: Navigates to interact redirect uri
+    SAS->>SAS: Starts interaction<br/>and sets session
+    SAS->>-SC: Responds with identity provider uri
+    SC->>+SIDP: Navigates (redirects) to identity provider
+    SIDP->>SIDP: Sender accepts interaction,<br/>for eg: confirms payment intent
+    SIDP->>SAS: Sends interaction choice
+    SAS->>SIDP: Accepts choice
+    SIDP->>SAS: Requests to finish interaction
+    SAS->>SAS: Ends session
+    SAS->>SIDP: Redirects to finish url defined in initial grant request
+    SIDP->>-SC: Follows redirect
+    SC->>SC: Verifies hash
+    SC->>+SAS: Sends a grant continuation request
+    SAS->>-SC: Responds with a grant access token
+    SC->>+SRS: Sends request to create an outgoing payment resource
+    SRS->>SAS: Requests validation of access token
+    SAS->>SRS: Access token is validated
+    SRS->>-SC: Outgoing payment resource is created
+`}
+/>
+
+</MermaidWrapper>
