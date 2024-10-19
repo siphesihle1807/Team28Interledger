@@ -34,3 +34,5 @@ async function sendPayment() {
         // Replace with your connector configuration
         // This could include your account details, secret, etc.
                                                                 [ Read 106 lines ]
+
+//testing
