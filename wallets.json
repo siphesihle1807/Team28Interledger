@@ -1,0 +1,18 @@
+{
+  "https://rafiki.money/alice": {
+    "publicName": "Alice",
+    "assetCode": "USD",
+    "assetScale": 2,
+    "authServer": "https://rafiki.money/auth",
+    "resourceServer": "https://rafiki.money/op",
+    "balance": 100.00
+  },
+  "https://rafiki.money/bob": {
+    "publicName": "Bob",
+    "assetCode": "EUR",
+    "assetScale": 2,
+    "authServer": "https://rafiki.money/auth",
+    "resourceServer": "https://rafiki.money/op",
+    "balance": 50.00
+  }
+}
