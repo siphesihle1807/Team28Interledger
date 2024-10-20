@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 # Sample data for wallet addresses with balances
 wallets = {
-    "https://rafiki.money/alice": {
+    "https://ilp.interledger-test.dev/cedeee60": {
         "publicName": "Alice",
         "assetCode": "USD",
         "assetScale": 2,
