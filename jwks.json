@@ -1,0 +1,24 @@
+{
+  "https://rafiki.money/alice/jwks.json": {
+    "keys": [
+      {
+        "kty": "RSA",
+        "kid": "alice-key",
+        "use": "sig",
+        "n": "MODULUS_FOR_ALICE_BASE64",
+        "e": "AQAB"
+      }
+    ]
+  },
+  "https://rafiki.money/bob/jwks.json": {
+    "keys": [
+      {
+        "kty": "RSA",
+        "kid": "bob-key",
+        "use": "sig",
+        "n": "MODULUS_FOR_BOB_BASE64",
+        "e": "AQAB"
+      }
+    ]
+  }
+}
